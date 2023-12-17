@@ -2,9 +2,8 @@ package estudos.alura.springboot.desafiofipe;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import estudos.alura.springboot.desafiofipe.model.Ano;
 import estudos.alura.springboot.desafiofipe.model.DadosModelos;
-import estudos.alura.springboot.desafiofipe.model.Marca;
+import estudos.alura.springboot.desafiofipe.model.Dado;
 import estudos.alura.springboot.desafiofipe.model.Veiculo;
 import estudos.alura.springboot.desafiofipe.service.ApiHandler;
 import estudos.alura.springboot.desafiofipe.service.JsonConverter;
@@ -51,10 +50,10 @@ public class Principal {
         this.fipeApiUrlBuilder.tipoVeiculo(tipoVeiculo.toLowerCase());
         json = this.apiHandler.sendRequest(this.fipeApiUrlBuilder.visualizarMarcas());
 
-        List<Marca> marcas = null;
+        List<Dado> marcas = null;
 
         try {
-            marcas = this.jsonConverter.convertToListObject(json, new TypeReference<List<Marca>>() {});
+            marcas = this.jsonConverter.convertToListObject(json, Dado.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -82,14 +81,14 @@ public class Principal {
         System.out.println("");
         System.out.println("Lista de modelos:");
 
-        dadosModelos.getModelos().stream().forEach(modelo -> System.out.println("Código: "+modelo.codigo()+" - "+modelo.nome()));
+        dadosModelos.modelos().stream().forEach(modelo -> System.out.println("Código: "+modelo.codigo()+" - "+modelo.nome()));
 
         System.out.println("");
         System.out.println("Digite um trecho do nome do modelo que procura: ");
 
         var trechoNomeModelo = scanner.nextLine();
 
-        dadosModelos.getModelos().stream()
+        dadosModelos.modelos().stream()
                 .filter(modelo -> modelo.nome().toLowerCase().contains(trechoNomeModelo.toLowerCase()))
                 .forEach(modelo -> System.out.println("Código: "+modelo.codigo()+" - "+modelo.nome()));
 
@@ -102,10 +101,10 @@ public class Principal {
         anoApiUrlRequest = this.fipeApiUrlBuilder.visualizarAnos();
         json = this.apiHandler.sendRequest(anoApiUrlRequest);
 
-        List<Ano> anos = null;
+        List<Dado> anos = null;
 
         try {
-            anos = this.jsonConverter.convertToListObject(json, new TypeReference<List<Ano>>(){});
+            anos = this.jsonConverter.convertToListObject(json, Dado.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -114,7 +113,7 @@ public class Principal {
 
         String finalAnoApiUrlRequest = anoApiUrlRequest;
         anos.stream().forEach(ano -> {
-            var jsonResult = this.apiHandler.sendRequest(finalAnoApiUrlRequest.concat(ano.ano()));
+            var jsonResult = this.apiHandler.sendRequest(finalAnoApiUrlRequest.concat(ano.codigo()));
             try {
                 Veiculo veiculo = this.jsonConverter.convertToSingleObject(jsonResult, Veiculo.class);
                 veiculos.add(veiculo);
